@@ -1,20 +1,25 @@
-# Stable Python image use karein (Debian-based)
+# Stable image use karein
 FROM python:3.10-slim-buster
 
-# Working directory set karein
 WORKDIR /app
 
-# System dependencies install karein (apt-get yahan kaam karega)
-RUN apt-get update && \
-    apt-get install -y ffmpeg jq python3-dev build-essential && \
+# Error 100 se bachne ke liye mirrors ko clean aur update karein
+RUN apt-get update --fix-missing && \
+    apt-get install -y --no-install-recommends \
+    ffmpeg \
+    jq \
+    python3-dev \
+    build-essential && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Requirements file copy aur install karein
+# Requirements install karein
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Baaki saara code copy karein
+# Pura code copy karein
 COPY . .
 
-# Bot start karein
+# Bot run karein
 CMD ["python3", "bot.py"]
