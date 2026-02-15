@@ -1,11 +1,13 @@
+import os
 from flask import Flask
 
 app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return 'Bot is Running Securely!'
 
-if __name__ == '__main__':
-    # Run the Flask app on port 80
-    app.run(host='0.0.0.0', port=80)
+def run_flask():
+    # Render automatically PORT environment variable deta hai
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
