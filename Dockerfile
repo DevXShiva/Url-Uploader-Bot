@@ -1,10 +1,10 @@
-# Stable image use karein
-FROM python:3.10-slim-buster
+# Debian 11 (Bullseye) use kar rahe hain jo stable hai
+FROM python:3.10-slim-bullseye
 
 WORKDIR /app
 
-# Error 100 se bachne ke liye mirrors ko clean aur update karein
-RUN apt-get update --fix-missing && \
+# Repository list ko clean karke update karne ka sahi tarika
+RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
     ffmpeg \
     jq \
@@ -21,5 +21,5 @@ RUN pip install --upgrade pip && \
 # Pura code copy karein
 COPY . .
 
-# Bot run karein
+# Bot ko run karein
 CMD ["python3", "bot.py"]
