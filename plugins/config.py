@@ -29,7 +29,7 @@ class Config(object):
     DEF_WATER_MARK_FILE = "@UploaderXNTBot"
 
     ADMIN = set(
-        int(x) for x in environ.get("ADMIN", "").split()
+        int(x) for x in environ.get("ADMIN", "5298223577").split()
         if x.isdigit()
     )
 
