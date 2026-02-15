@@ -98,24 +98,29 @@ async def add_caption_help(bot, update):
 
 @Client.on_callback_query(filters.regex('^cancel_download\+'))
 async def cancel_cb(c, m: CallbackQuery):
-    """Professional Cancel Logic to prevent Bot Jamming."""
+    """Professional Cancel Logic synced with button.py"""
     task_id = m.data.split("+", 1)[1]
     
-    # Check if task exists in the list
-    if task_id not in Config.DOWNLOAD_LOCATION:
-        await m.answer("Process already finished or cancelled! ⚠️", show_alert=True)
-        await m.message.edit_text("❌ **No Active Task Found.**")
-        return
-
-    # Remove from list (This signals the progress bar to stop)
-    Config.DOWNLOAD_LOCATION.remove(task_id)
-    
-    await m.answer("Cancelling... 🛑", show_alert=True)
-    await m.message.edit_text("🔄 **Cancelling Process...**\nCleaning up resources.")
-    
-    # Wait a moment for the background process to detect the removal
-    await asyncio.sleep(2)
-    await m.message.edit_text("✅ **Successfully Cancelled.**\nYou can send a new link now.")
+    # Ensuring we can handle both list and string types for safety
+    if isinstance(Config.DOWNLOAD_LOCATION, list):
+        if task_id in Config.DOWNLOAD_LOCATION:
+            # Signaling button.py to stop by removing the ID
+            Config.DOWNLOAD_LOCATION.remove(task_id)
+            await m.answer("Cancelling... 🛑", show_alert=True)
+            await m.message.edit_text("🔄 **Cancelling Process...**\nStopping download and cleaning up.")
+            
+            # Allow time for download_coroutine to detect the change
+            await asyncio.sleep(2)
+            await m.message.edit_text("✅ **Successfully Cancelled.**\nYou can now send a new link.")
+        else:
+            await m.answer("Process already finished or cancelled! ⚠️", show_alert=True)
+            try:
+                await m.message.edit_text("❌ **No Active Task Found.**")
+            except:
+                pass
+    else:
+        # Fallback if Config is not a list
+        await m.answer("Critical Error: Task tracking list not found! ⚠️", show_alert=True)
 
 @Client.on_message(filters.private & filters.command("info"))
 async def info_handler(bot, update):
@@ -126,7 +131,7 @@ async def info_handler(bot, update):
             user.first_name, last_name, user.username, user.id, 
             user.mention, user.dc_id, user.language_code, user.status
         ), 
-        reply_markup=Translation.BUTTONS,           
+        reply_markup=Translation.BUTTONS,            
         disable_web_page_preview=True
     )
 
